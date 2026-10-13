@@ -10,20 +10,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  getFileHandle,
-  getConfig,
-  storeFileHandle,
-  storeConfig,
-  verifyPermission,
-} from "@/utils/fileSystem";
+  clearSyncDirectory,
+  getSavedSyncDirectory,
+  selectSyncDirectory,
+} from "@/utils/syncDirectory";
 import { useResumeStore } from "@/store/useResumeStore";
 import { syncResumesFromDirectory } from "@/utils/resumeFileSync";
 import ThemeSettings from "./ThemeSettings";
 
 const SettingsPage = () => {
-  const [directoryHandle, setDirectoryHandle] =
-    useState<FileSystemDirectoryHandle | null>(null);
-  const [folderPath, setFolderPath] = useState<string>("");
+  const [syncFolder, setSyncFolder] = useState<string>("");
   const t = useTranslations();
   const updateResumeFromFile = useResumeStore(
     (state) => state.updateResumeFromFile
@@ -32,15 +28,9 @@ const SettingsPage = () => {
   useEffect(() => {
     const loadSavedConfig = async () => {
       try {
-        const handle = await getFileHandle("syncDirectory");
-        const path = await getConfig("syncDirectoryPath");
-
-        if (handle && path) {
-          const hasPermission = await verifyPermission(handle);
-          if (hasPermission) {
-            setDirectoryHandle(handle as FileSystemDirectoryHandle);
-            setFolderPath(path);
-          }
+        const directory = await getSavedSyncDirectory();
+        if (directory) {
+          setSyncFolder(directory.label);
         }
       } catch (error) {
         console.error("Error loading saved config:", error);
@@ -52,35 +42,31 @@ const SettingsPage = () => {
 
   const handleSelectDirectory = async () => {
     try {
-      if (!("showDirectoryPicker" in window)) {
+      const directory = await selectSyncDirectory();
+      if (!directory) {
+        return;
+      }
+
+      setSyncFolder(directory.label);
+      await syncResumesFromDirectory(updateResumeFromFile);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "directoryPickerUnsupported"
+      ) {
         alert(
           "Your browser does not support directory selection. Please use a modern browser."
         );
         return;
       }
-
-      const handle = await window.showDirectoryPicker({ mode: "readwrite" });
-      const hasPermission = await verifyPermission(handle);
-      if (hasPermission) {
-        setDirectoryHandle(handle);
-        const path = handle.name;
-        setFolderPath(path);
-        await storeFileHandle("syncDirectory", handle);
-        await storeConfig("syncDirectoryPath", path);
-        await syncResumesFromDirectory(updateResumeFromFile);
-      }
-    } catch (error) {
       console.error("Error selecting directory:", error);
     }
   };
 
   const handleRemoveDirectory = async () => {
     try {
-      setDirectoryHandle(null);
-      setFolderPath("");
-      // Clear from IndexedDB
-      await storeFileHandle("syncDirectory", null as any);
-      await storeConfig("syncDirectoryPath", "");
+      setSyncFolder("");
+      await clearSyncDirectory();
     } catch (error) {
       console.error("Error removing directory:", error);
     }
@@ -106,7 +92,7 @@ const SettingsPage = () => {
               <div className="flex items-start gap-4">
                 <div className="relative flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 text-white shadow-xs dark:bg-zinc-800 dark:text-zinc-100 dark:border dark:border-zinc-700">
                   <FolderSync className="size-5" />
-                  {directoryHandle && (
+                  {syncFolder && (
                     <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-500 ring-2 ring-card" />
                   )}
                 </div>
@@ -115,7 +101,7 @@ const SettingsPage = () => {
                     <CardTitle className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
                       {t("dashboard.settings.sync.title")}
                     </CardTitle>
-                    {directoryHandle ? (
+                    {syncFolder ? (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                         <span className="size-1.5 rounded-full bg-emerald-500" />
                         {t("dashboard.settings.syncDirectory.statusConfigured")}
@@ -136,11 +122,11 @@ const SettingsPage = () => {
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  {directoryHandle ? (
+                  {syncFolder ? (
                     <div className="flex h-11 items-center gap-3 rounded-xl border border-border/80 bg-muted/30 px-3.5 transition-colors">
                       <FolderCheck className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                       <span className="truncate font-mono text-xs sm:text-sm font-medium text-foreground">
-                        {folderPath}
+                        {syncFolder}
                       </span>
                     </div>
                   ) : (
@@ -157,11 +143,11 @@ const SettingsPage = () => {
                     className="flex-1 sm:flex-none h-11 px-5 rounded-xl font-medium shadow-xs hover:shadow transition-all cursor-pointer bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                   >
                     <FolderOpen className="mr-2 size-4" />
-                    {directoryHandle
+                    {syncFolder
                       ? t("dashboard.settings.syncDirectory.changeFolder")
                       : t("dashboard.settings.sync.select")}
                   </Button>
-                  {directoryHandle && (
+                  {syncFolder && (
                     <Button
                       onClick={handleRemoveDirectory}
                       variant="outline"

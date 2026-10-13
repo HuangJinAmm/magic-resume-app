@@ -5,6 +5,7 @@ import { getFontFaceCss, normalizeFontFamily } from "@/utils/fonts";
 import { cloneResumeForExport, waitForResumeAssets } from "@/utils/resumeLayout";
 import { ResumeData } from "@/types/resume";
 import { generateResumeMarkdown, ResumeMarkdownOptions } from "@/utils/markdown";
+import { saveFileToDisk } from "@/lib/desktop/saveFile";
 
 const INVALID_FILE_NAME_CHAR_REGEX = /[\\/:*?"<>|]/g;
 
@@ -17,18 +18,13 @@ const getSafeFileName = (title?: string) => {
   return normalized || "resume";
 };
 
-const downloadBlob = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  window.URL.revokeObjectURL(url);
+const downloadBlob = async (blob: Blob, fileName: string) => {
+  await saveFileToDisk(blob, fileName);
 };
 
 const downloadTextFile = (content: string, fileName: string, mimeType: string) => {
   const blob = new Blob([content], { type: mimeType });
-  downloadBlob(blob, fileName);
+  return downloadBlob(blob, fileName);
 };
 
 export const getOptimizedStyles = () => {
@@ -142,7 +138,7 @@ interface ExportResumeMarkdownOptions extends ExportResumeFileOptions {
   markdownOptions?: ResumeMarkdownOptions;
 }
 
-export const exportResumeAsJson = ({
+export const exportResumeAsJson = async ({
   resume,
   title,
   onStart,
@@ -159,7 +155,7 @@ export const exportResumeAsJson = ({
 
     const json = JSON.stringify(resume, null, 2);
     const fileName = `${getSafeFileName(title || resume.title)}.json`;
-    downloadTextFile(json, fileName, "application/json;charset=utf-8");
+    await downloadTextFile(json, fileName, "application/json;charset=utf-8");
     if (successMessage) toast.success(successMessage);
   } catch (error) {
     console.error("JSON export error:", error);
@@ -169,7 +165,7 @@ export const exportResumeAsJson = ({
   }
 };
 
-export const exportResumeAsMarkdown = ({
+export const exportResumeAsMarkdown = async ({
   resume,
   title,
   onStart,
@@ -187,7 +183,7 @@ export const exportResumeAsMarkdown = ({
 
     const markdown = generateResumeMarkdown(resume, markdownOptions);
     const fileName = `${getSafeFileName(title || resume.title)}.md`;
-    downloadTextFile(markdown, fileName, "text/markdown;charset=utf-8");
+    await downloadTextFile(markdown, fileName, "text/markdown;charset=utf-8");
     if (successMessage) toast.success(successMessage);
   } catch (error) {
     console.error("Markdown export error:", error);
@@ -459,7 +455,7 @@ export const exportToLongPagePdf = async ({
     const imageData = canvas.toDataURL("image/png");
     pdf.addImage(imageData, "PNG", 0, 0, A4_WIDTH_MM, imageHeightMm);
     keepOnlyFirstPage(pdf);
-    pdf.save(fileName);
+    await downloadBlob(pdf.output("blob"), fileName);
 
     if (successMessage) toast.success(successMessage);
     console.log(`Total long page export took ${performance.now() - exportStartTime}ms`);
@@ -504,7 +500,7 @@ export const exportToLongPageImage = async ({
     canvas = await renderLongPageCanvas(capture);
     const blob = await getCanvasPngBlob(canvas);
     const fileName = `${getSafeFileName(title)}.png`;
-    downloadBlob(blob, fileName);
+    await downloadBlob(blob, fileName);
 
     if (successMessage) toast.success(successMessage);
     console.log(`Total long page image export took ${performance.now() - exportStartTime}ms`);
@@ -587,7 +583,7 @@ export const exportToPdf = async ({
 
     const blob = await response.blob();
     const fileName = `${getSafeFileName(title)}.pdf`;
-    downloadBlob(blob, fileName);
+    await downloadBlob(blob, fileName);
 
     if (successMessage) toast.success(successMessage);
     console.log(`Total export took ${performance.now() - exportStartTime}ms`);

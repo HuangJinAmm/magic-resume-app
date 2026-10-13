@@ -3,6 +3,7 @@ import {
   HeadContent,
   Outlet,
   Scripts,
+  redirect,
   useLocation,
 } from "@tanstack/react-router";
 import appCss from "../app/globals.css?url";
@@ -11,13 +12,16 @@ import tiptapCss from "../styles/tiptap.scss?url";
 import landingCss from "@/components/home/landing.css?url";
 import sonnerCss from "sonner/dist/styles.css?url";
 import { NextIntlClientProvider } from "@/i18n/compat/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import zhMessages from "@/i18n/locales/zh.json";
 import enMessages from "@/i18n/locales/en.json";
 import { Providers } from "@/app/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { getLocaleFromPathname, getPreferredLocale } from "@/i18n/runtime";
 import { ReactGrab } from "@/components/dev/ReactGrab";
+import { isTauriRuntime } from "@/lib/desktop/env";
+import { installDesktopRuntime } from "@/lib/desktop/bootstrap";
+import TitleBar from "@/components/desktop/TitleBar";
 
 const defaultFontPreloadLinks = [
   {
@@ -37,6 +41,20 @@ const defaultFontPreloadLinks = [
 ];
 
 export const Route = createRootRoute({
+  beforeLoad: ({ location }) => {
+    if (!isTauriRuntime()) return;
+
+    const pathname = location.pathname.replace(/\/$/, "") || "/";
+    const locale = getLocaleFromPathname(location.pathname);
+    const isEntryPoint =
+      pathname === "/" ||
+      pathname === "/index.html" ||
+      (locale !== null && pathname === `/${locale}`);
+
+    if (isEntryPoint) {
+      throw redirect({ to: "/app/dashboard/resumes" });
+    }
+  },
   head: ({ matches }) => ({
     meta: [
       { charSet: "utf-8" },
@@ -96,10 +114,19 @@ function RootComponent() {
     landingLocale !== null &&
     pathname.replace(/\/$/, "") === `/${landingLocale}`;
   const messages = locale === "en" ? enMessages : zhMessages;
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     document.cookie = `NEXT_LOCALE=${locale}; path=/; max-age=31536000`;
   }, [locale]);
+
+  useEffect(() => {
+    // 模板预览等场景会以 iframe 复用本路由：iframe 内不再渲染标题栏、
+    // 也不应用桌面偏移（真实标题栏只存在于顶层窗口）。
+    if (!isTauriRuntime() || window.self !== window.top) return;
+    installDesktopRuntime();
+    setIsDesktop(true);
+  }, []);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -109,6 +136,7 @@ function RootComponent() {
         <link rel="icon" href="/icon.png" />
       </head>
       <body>
+        {isDesktop && <TitleBar />}
         <NextIntlClientProvider
           locale={locale}
           messages={messages}

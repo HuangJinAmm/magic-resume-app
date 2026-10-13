@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { StateStorage } from "zustand/middleware";
-import { getFileHandle, verifyPermission } from "@/utils/fileSystem";
+import { getSavedSyncDirectory } from "@/utils/syncDirectory";
 import {
   BasicInfo,
   Education,
@@ -208,22 +208,15 @@ const syncResumeToFile = async (
   resumeData: ResumeData,
   prevResume?: ResumeData
 ) => {
-  if (typeof window === "undefined" || typeof indexedDB === "undefined") {
+  if (typeof window === "undefined") {
     return;
   }
 
   try {
-    const handle = await getFileHandle("syncDirectory");
-    if (!handle) {
+    const directory = await getSavedSyncDirectory();
+    if (!directory) {
       return;
     }
-
-    const hasPermission = await verifyPermission(handle);
-    if (!hasPermission) {
-      return;
-    }
-
-    const dirHandle = handle as FileSystemDirectoryHandle;
 
     if (
       prevResume &&
@@ -231,19 +224,16 @@ const syncResumeToFile = async (
       prevResume.title !== resumeData.title
     ) {
       try {
-        await dirHandle.removeEntry(`${prevResume.title}.json`);
+        await directory.removeFile(`${prevResume.title}.json`);
       } catch (error) {
         console.warn("Error deleting old file:", error);
       }
     }
 
-    const fileName = `${resumeData.title}.json`;
-    const fileHandle = await dirHandle.getFileHandle(fileName, {
-      create: true,
-    });
-    const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(resumeData, null, 2));
-    await writable.close();
+    await directory.writeFile(
+      `${resumeData.title}.json`,
+      JSON.stringify(resumeData, null, 2)
+    );
   } catch (error) {
     console.error("Error syncing resume to file:", error);
   }
@@ -529,15 +519,11 @@ export const useResumeStore = create(
 
         (async () => {
           try {
-            const handle = await getFileHandle("syncDirectory");
-            if (!handle) return;
+            const directory = await getSavedSyncDirectory();
+            if (!directory) return;
 
-            const hasPermission = await verifyPermission(handle);
-            if (!hasPermission) return;
-
-            const dirHandle = handle as FileSystemDirectoryHandle;
             try {
-              await dirHandle.removeEntry(`${resume.title}.json`);
+              await directory.removeFile(`${resume.title}.json`);
             } catch (error) {}
           } catch (error) {
             console.error("Error deleting resume file:", error);

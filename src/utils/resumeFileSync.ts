@@ -1,5 +1,5 @@
 import type { ResumeData } from "@/types/resume";
-import { getFileHandle, verifyPermission } from "@/utils/fileSystem";
+import { getSavedSyncDirectory } from "@/utils/syncDirectory";
 
 type SyncResult = {
   synced: number;
@@ -28,44 +28,26 @@ export const syncResumesFromDirectory = async (
     failed: 0,
   };
 
-  if (typeof window === "undefined" || typeof indexedDB === "undefined") {
+  if (typeof window === "undefined") {
     return result;
   }
 
   try {
-    const handle = await getFileHandle("syncDirectory");
-    if (!handle || handle.kind !== "directory") {
+    const directory = await getSavedSyncDirectory();
+    if (!directory) {
       return result;
     }
 
-    const hasPermission = await verifyPermission(handle, "read");
-    if (!hasPermission) {
-      return result;
-    }
-
-    const dirHandle = handle as FileSystemDirectoryHandle;
-    const entries = (dirHandle as any).values?.();
-    if (!entries) {
-      return result;
-    }
-
-    for await (const entry of entries) {
-      if (entry.kind !== "file" || !entry.name.endsWith(".json")) {
-        result.skipped += 1;
-        continue;
-      }
-
+    for (const file of await directory.listJsonFiles()) {
       try {
-        const file = await entry.getFile();
-        const content = await file.text();
-        const resumeData = JSON.parse(content);
+        const resumeData = JSON.parse(file.content);
 
         if (!isResumeData(resumeData)) {
           result.skipped += 1;
           continue;
         }
 
-        const imported = updateResumeFromFile(resumeData, file.lastModified);
+        const imported = updateResumeFromFile(resumeData, file.modifiedAt);
         if (imported) {
           result.synced += 1;
         } else {
@@ -73,7 +55,7 @@ export const syncResumesFromDirectory = async (
         }
       } catch (error) {
         result.failed += 1;
-        console.error(`Error reading resume file "${entry.name}":`, error);
+        console.error(`Error reading resume file "${file.name}":`, error);
       }
     }
   } catch (error) {

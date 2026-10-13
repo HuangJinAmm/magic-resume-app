@@ -250,3 +250,45 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+/* ==========================================================================
+ * Tauri 桌面端无边框标题栏适配（仅在 Tauri 运行时由 bootstrap 添加 html.is-desktop）
+ * 标题栏是 36px 的 fixed 覆盖层，这里统一为整页让出顶部空间：
+ * 1. body 顶部内边距把常规文档流内容推到标题栏下方；
+ * 2. h-screen/h-dvh 等全屏高度工具类扣除标题栏高度，避免底部溢出视口；
+ * 3. fixed 定位在视口顶部的元素（如侧边栏、落地页导航）整体下移。
+ * ========================================================================== */
+html.is-desktop {
+  --desktop-titlebar-height: 36px;
+}
+
+html.is-desktop body {
+  padding-top: var(--desktop-titlebar-height);
+}
+
+html.is-desktop .h-screen {
+  height: calc(100vh - var(--desktop-titlebar-height)) !important;
+}
+
+html.is-desktop .h-dvh,
+html.is-desktop .h-svh {
+  height: calc(100dvh - var(--desktop-titlebar-height)) !important;
+}
+
+html.is-desktop .min-h-screen {
+  min-height: calc(100vh - var(--desktop-titlebar-height)) !important;
+}
+
+html.is-desktop .min-h-dvh,
+html.is-desktop .min-h-svh {
+  min-height: calc(100dvh - var(--desktop-titlebar-height)) !important;
+}
+
+html.is-desktop .fixed.top-0,
+html.is-desktop .fixed.inset-y-0 {
+  top: var(--desktop-titlebar-height) !important;
+}
+
+html.is-desktop [data-sonner-toaster] {
+  top: calc(var(--desktop-titlebar-height) + 20px) !important;
+}
