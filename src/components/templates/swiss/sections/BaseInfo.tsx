@@ -6,7 +6,6 @@ import { BasicInfo, getBorderRadiusValue, GlobalSettings } from "@/types/resume"
 import { ResumeTemplate } from "@/types/template";
 import SectionWrapper from "../../shared/SectionWrapper";
 import { useTranslations, useLocale } from "@/i18n/compat/client";
-import GithubContribution from "@/components/shared/GithubContribution";
 import { getCustomFieldDisplayText, getCustomFieldHref, shouldShowCustomFieldLabelPrefix } from "@/lib/customField";
 
 interface BaseInfoProps {
@@ -189,9 +188,6 @@ const BaseInfo = ({ basic = {} as BasicInfo, globalSettings, template }: BaseInf
                     })}
                 </motion.div>
             </div>
-            {basic.githubContributionsVisible && (
-                <GithubContribution className="mt-6 border border-slate-100 rounded-xl p-3 bg-slate-50/50" githubKey={basic.githubKey} username={basic.githubUseName} />
-            )}
         </SectionWrapper>
     );
 };

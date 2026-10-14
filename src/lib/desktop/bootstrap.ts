@@ -2,8 +2,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { installDesktopApiBridge } from "@/lib/desktop/api-bridge";
 import { isTauriRuntime } from "@/lib/desktop/env";
 
-const TITLEBAR_HEIGHT = 36;
-
 let installed = false;
 
 const isExternalUrl = (url: string): boolean =>
@@ -47,12 +45,6 @@ function installExternalLinkHandler() {
 export function installDesktopRuntime() {
   if (installed || !isTauriRuntime()) return;
   installed = true;
-
-  document.documentElement.style.setProperty(
-    "--desktop-titlebar-height",
-    `${TITLEBAR_HEIGHT}px`,
-  );
-  document.documentElement.classList.add("is-desktop");
 
   installDesktopApiBridge();
   installExternalLinkHandler();

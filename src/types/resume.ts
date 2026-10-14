@@ -75,9 +75,6 @@ export interface BasicInfo {
   photoConfig: PhotoConfig;
   fieldOrder?: BasicFieldType[];
   customFields: CustomFieldType[];
-  githubKey: string;
-  githubUseName: string;
-  githubContributionsVisible: boolean;
   layout?: "left" | "center" | "right";
 }
 

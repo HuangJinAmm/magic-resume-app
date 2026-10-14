@@ -26,15 +26,15 @@ const FONT_DEFINITIONS: FontDefinition[] = [
     sources: [
       {
         family: "Alibaba PuHuiTi",
-        url: "/fonts/AlibabaPuHuiTi-3-55-Regular.ttf",
-        format: "truetype",
+        url: "/fonts/AlibabaPuHuiTi-3-55-Regular.woff2",
+        format: "woff2",
         weight: "400",
         style: "normal"
       },
       {
         family: "Alibaba PuHuiTi",
-        url: "/fonts/AlibabaPuHuiTi-3-85-Bold.ttf",
-        format: "truetype",
+        url: "/fonts/AlibabaPuHuiTi-3-85-Bold.woff2",
+        format: "woff2",
         weight: "700",
         style: "normal"
       }
@@ -54,15 +54,15 @@ const FONT_DEFINITIONS: FontDefinition[] = [
     sources: [
       {
         family: "MiSans",
-        url: "/fonts/MiSans-Normal.ttf",
-        format: "truetype",
+        url: "/fonts/MiSans-Normal.woff2",
+        format: "woff2",
         weight: "400",
         style: "normal"
       },
       {
         family: "MiSans",
-        url: "/fonts/MiSans-Bold.ttf",
-        format: "truetype",
+        url: "/fonts/MiSans-Medium.woff2",
+        format: "woff2",
         weight: "700",
         style: "normal"
       }
@@ -78,22 +78,22 @@ const FONT_DEFINITIONS: FontDefinition[] = [
     sources: [
       {
         family: "Noto Sans SC",
-        url: "/fonts/NotoSansSC-Regular.otf",
-        format: "opentype",
+        url: "/fonts/NotoSansSC-Regular.woff2",
+        format: "woff2",
         weight: "400",
         style: "normal"
       },
       {
         family: "Noto Sans SC",
-        url: "/fonts/NotoSansSC-Medium.otf",
-        format: "opentype",
+        url: "/fonts/NotoSansSC-Medium.woff2",
+        format: "woff2",
         weight: "500",
         style: "normal"
       },
       {
         family: "Noto Sans SC",
-        url: "/fonts/NotoSansSC-Bold.otf",
-        format: "opentype",
+        url: "/fonts/NotoSansSC-Bold.woff2",
+        format: "woff2",
         weight: "700",
         style: "normal"
       }
@@ -111,22 +111,22 @@ const FONT_DEFINITIONS: FontDefinition[] = [
     sources: [
       {
         family: "Source Han Serif SC",
-        url: "/fonts/SourceHanSerifSC-Regular.otf",
-        format: "opentype",
+        url: "/fonts/SourceHanSerifSC-Regular.woff2",
+        format: "woff2",
         weight: "400",
         style: "normal"
       },
       {
         family: "Source Han Serif SC",
-        url: "/fonts/SourceHanSerifSC-Medium.otf",
-        format: "opentype",
+        url: "/fonts/SourceHanSerifSC-Medium.woff2",
+        format: "woff2",
         weight: "500",
         style: "normal"
       },
       {
         family: "Source Han Serif SC",
-        url: "/fonts/SourceHanSerifSC-Bold.otf",
-        format: "opentype",
+        url: "/fonts/SourceHanSerifSC-Bold.woff2",
+        format: "woff2",
         weight: "700",
         style: "normal"
       }

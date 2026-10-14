@@ -46,9 +46,7 @@ export const TEMPLATE_REGISTRY: TemplateRegistryEntry[] = [
 ];
 
 /** All template configs — drop-in replacement for the old DEFAULT_TEMPLATES */
-export const DEFAULT_TEMPLATES: ResumeTemplate[] = TEMPLATE_REGISTRY.map(
-  (entry) => entry.config
-);
+export { DEFAULT_TEMPLATES } from "./configs";
 
 /** Look up a template component by layout id */
 export function getTemplateComponent(

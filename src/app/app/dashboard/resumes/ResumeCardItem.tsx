@@ -18,11 +18,13 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import ResumeTemplateComponent from "@/components/templates";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { cn } from "@/lib/utils";
 import { normalizeFontFamily } from "@/utils/fonts";
 import { Edit2, Copy, Trash2 } from "lucide-react";
+
+// 模板 UI 按需加载，避免把全部模板组件打进列表页首屏 chunk。
+const ResumeTemplateComponent = React.lazy(() => import("@/components/templates"));
 
 interface ResumeCardItemProps {
     id: string;
@@ -106,7 +108,9 @@ export const ResumeCardItem = ({
                                     fontFamily: normalizeFontFamily(resume.globalSettings?.fontFamily),
                                 }}
                             >
-                                <ResumeTemplateComponent data={resume as any} template={activeTemplate} />
+                                <React.Suspense fallback={null}>
+                                    <ResumeTemplateComponent data={resume as any} template={activeTemplate} />
+                                </React.Suspense>
                             </div>
                         </div>
                     </div>

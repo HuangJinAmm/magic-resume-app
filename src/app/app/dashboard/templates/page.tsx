@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "@/i18n/compat/client";
 import { motion } from "framer-motion";
 import { useRouter } from "@/lib/navigation";
@@ -9,10 +9,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import ResumeTemplateComponent from "@/components/templates";
 import { initialResumeState, initialResumeStateEn } from "@/config/initialResumeData";
 import type { ResumeTemplate } from "@/types/template";
 import { normalizeFontFamily } from "@/utils/fonts";
+
+// 模板 UI 按需加载，避免把全部模板组件打进首屏 chunk。
+const ResumeTemplateComponent = lazy(() => import("@/components/templates"));
 
 const A4_WIDTH_PX = 793.700787;
 const PREVIEW_MODAL_SCALE = 0.529166667;
@@ -142,7 +144,9 @@ const TemplateCardItem = ({
                   fontFamily: normalizeFontFamily(previewData.globalSettings?.fontFamily),
                 }}
               >
-                <ResumeTemplateComponent data={previewData} template={template} />
+                <Suspense fallback={null}>
+                  <ResumeTemplateComponent data={previewData} template={template} />
+                </Suspense>
               </div>
             </div>
           </div>
@@ -363,15 +367,17 @@ const TemplatesPage = () => {
                           ),
                         }}
                       >
-                        <ResumeTemplateComponent
-                          data={buildTemplatePreviewData(
-                            baseData,
-                            activePreviewTemplate,
-                            selectedColor,
-                            "preview-mock-id-large"
-                          )}
-                          template={activePreviewTemplate}
-                        />
+                        <Suspense fallback={null}>
+                          <ResumeTemplateComponent
+                            data={buildTemplatePreviewData(
+                              baseData,
+                              activePreviewTemplate,
+                              selectedColor,
+                              "preview-mock-id-large"
+                            )}
+                            template={activePreviewTemplate}
+                          />
+                        </Suspense>
                       </div>
                     </div>
                   </div>

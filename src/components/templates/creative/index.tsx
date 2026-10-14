@@ -3,7 +3,6 @@ import React from "react";
 import { ResumeData } from "@/types/resume";
 import { ResumeTemplate } from "@/types/template";
 import BaseInfo from "./sections/BaseInfo";
-import GithubContribution from "@/components/shared/GithubContribution";
 import ExperienceSection from "./sections/ExperienceSection";
 import EducationSection from "./sections/EducationSection";
 import ProjectSection from "./sections/ProjectSection";
@@ -69,9 +68,6 @@ const CreativeTemplate: React.FC<CreativeTemplateProps> = ({ data, template }) =
                 <div className="w-full relative py-8 px-4 rounded-b-3xl pr-0" style={{ backgroundColor: data.globalSettings.themeColor, color: "#ffffff" }}>
                     <div className="relative z-10 w-full">
                         <BaseInfo basic={data.basic} globalSettings={data.globalSettings} template={template} />
-                        {data.basic.githubContributionsVisible && (
-                            <GithubContribution className="mt-2 text-white" githubKey={data.basic.githubKey} username={data.basic.githubUseName} />
-                        )}
                     </div>
                 </div>
             )}

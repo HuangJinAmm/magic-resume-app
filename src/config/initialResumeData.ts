@@ -41,9 +41,6 @@ export const initialResumeState = {
       },
     ],
     photo: "/avatar.png",
-    githubKey: "",
-    githubUseName: "",
-    githubContributionsVisible: false,
   },
   education: [
     {
@@ -192,9 +189,6 @@ export const initialResumeStateEn = {
     photoConfig: DEFAULT_CONFIG,
     customFields: [],
     photo: "/avatar.png",
-    githubKey: "",
-    githubUseName: "",
-    githubContributionsVisible: false,
   },
   education: [
     {

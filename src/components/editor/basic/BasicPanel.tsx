@@ -464,60 +464,6 @@ const BasicPanel: React.FC = () => {
                     </Button>
                   </motion.div>
                 </motion.div>
-                <motion.div className="space-y-3">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <motion.h3 className="font-medium text-neutral-900 dark:text-foreground px-1">
-                        {t("githubContributions")}
-                      </motion.h3>
-
-                      <Switch
-                        checked={basic?.githubContributionsVisible}
-                        onCheckedChange={(checked) =>
-                          updateBasicInfo({
-                            ...basic,
-                            githubContributionsVisible: checked,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="flex items-center ml-3 space-x-2">
-                        <div className=" w-[110px]">Access Token</div>
-                        <Input
-                          placeholder="请输入github access token"
-                          className="flex-1"
-                          value={basic?.githubKey}
-                          onChange={(e) =>
-                            updateBasicInfo({
-                              ...basic,
-                              githubKey: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center ml-3 mt-4 space-x-2">
-                        <div className="w-[110px]">UseName</div>
-                        <Input
-                          className="flex-1"
-                          placeholder="请输入github username"
-                          value={basic?.githubUseName}
-                          onChange={(e) =>
-                            updateBasicInfo({
-                              ...basic,
-                              githubUseName: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
               </motion.div>
             </motion.div>
           </div>

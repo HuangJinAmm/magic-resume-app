@@ -10,13 +10,15 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DEFAULT_TEMPLATES } from "@/config";
 import { initialResumeState } from "@/config/initialResumeData";
-import ResumeTemplateComponent from "@/components/templates";
 import { useTemplateSnapshots } from "@/hooks/useTemplateSnapshots";
 import type { Translator } from "@/i18n/compat/utils";
 import type { ResumeData } from "@/types/resume";
 import type { ResumeTemplate } from "@/types/template";
 import { ChevronLeft, FilePlus, Sparkles, X } from "lucide-react";
 import { normalizeFontFamily } from "@/utils/fonts";
+
+// 模板 UI 按需加载，避免把全部模板组件打进首屏 chunk。
+const ResumeTemplateComponent = React.lazy(() => import("@/components/templates"));
 
 interface CreateResumeModalProps {
     open: boolean;
@@ -178,10 +180,12 @@ const TemplateThumbnail = ({
                         fontFamily: normalizeFontFamily(previewData.globalSettings?.fontFamily),
                     }}
                 >
-                    <ResumeTemplateComponent
-                        data={previewData}
-                        template={template}
-                    />
+                    <React.Suspense fallback={null}>
+                        <ResumeTemplateComponent
+                            data={previewData}
+                            template={template}
+                        />
+                    </React.Suspense>
                 </div>
             </div>
         </div>

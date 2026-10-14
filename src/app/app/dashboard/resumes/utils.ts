@@ -108,9 +108,6 @@ export const createResumeFromAIResult = (result: any, fileName: string, locale =
       birthDate: toString(result?.basic?.birthDate),
       customFields: [],
       photo: "",
-      githubKey: "",
-      githubUseName: "",
-      githubContributionsVisible: false,
     },
     education: education
       .map((item: any) => ({
